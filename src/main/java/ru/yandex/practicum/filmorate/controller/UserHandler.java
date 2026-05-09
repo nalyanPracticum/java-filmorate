@@ -24,7 +24,7 @@ public class UserHandler {
 
     public User update(@Valid User user) {
         if (!users.containsKey(user.getId())) {
-            throw new RuntimeException("User " + user.getId() + "not found");
+            throw new RuntimeException("Пользователь с id " + user.getId() + " не найден");
         }
         users.put(user.getId(), user);
         return user;

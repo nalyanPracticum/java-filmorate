@@ -20,18 +20,12 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("Создание пользователя {}", user);
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин содержит пробелы");
-        }
         return handler.create(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("Обновление пользователя {}", user);
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин содержит пробелы");
-        }
         return handler.update(user);
     }
 

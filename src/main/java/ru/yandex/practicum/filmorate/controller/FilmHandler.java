@@ -21,7 +21,7 @@ public class FilmHandler {
 
     public Film update(@Valid Film film) {
         if (!films.containsKey(film.getId())) {
-            throw new RuntimeException("Film id " + film.getId() + " not found");
+            throw new RuntimeException("Фильм с id " + film.getId() + " не найден");
         }
         films.put(film.getId(), film);
         return film;

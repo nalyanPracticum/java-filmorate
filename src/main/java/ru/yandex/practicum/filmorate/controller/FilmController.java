@@ -21,10 +21,6 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("Создается фильм {}", film);
-        LocalDate minDate = LocalDate.of(1895, 12, 28);
-        if (film.getReleaseDate().isBefore(minDate)) {
-            throw new ValidationException("Дата релиза не может быть раньше 28.12.1895");
-        }
         return handler.create(film);
     }
 
@@ -32,14 +28,12 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         log.info("Обновление фильма {}", film);
         LocalDate minDate = LocalDate.of(1895, 12, 28);
-        if (film.getReleaseDate().isBefore(minDate)) {
-            throw new ValidationException("Дата релиза не может быть раньше 28.12.1895");
-        }
         return handler.update(film);
     }
 
     @GetMapping
     public List<Film> getFilms() {
+        log.info("Получение всех фильмов");
         return handler.getFilms();
     }
 }
