@@ -20,7 +20,7 @@ public class FilmService {
     private final FilmStorage films;
     private final UserStorage users;
 
-    private enum ValidationKey {USER, FILM}
+    private enum ValidationKey { USER, FILM }
 
     public FilmService(FilmStorage films, UserStorage users) {
         this.films = films;
