@@ -2,9 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.IncorrectDataException;
 import ru.yandex.practicum.filmorate.exception.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
 import java.util.Set;
@@ -13,9 +14,9 @@ import java.util.Set;
 @Slf4j
 public class UserService {
 
-    private final InMemoryUserStorage users;
+    private final UserStorage users;
 
-    public UserService(InMemoryUserStorage users) {
+    public UserService(UserStorage users) {
         this.users = users;
     }
 
@@ -25,23 +26,19 @@ public class UserService {
         validateUserId(userId);
         validateUserId(friendId);
 
-        User user = users.getUser(userId);
-        User friend = users.getUser(friendId);
-
-        Set<Long> userFriendsList = user.getFriends();
-        Set<Long> friendFriendsList = friend.getFriends();
+        Set<Long> userFriendsList = users.getUser(userId).getFriends();
+        Set<Long> friendFriendsList = users.getUser(friendId).getFriends();
 
         if (!userFriendsList.contains(friendId)) {
-            userFriendsList.add(friendId);
-            friendFriendsList.add(userId);
 
-            user.setFriends(userFriendsList);
+            userFriendsList.add(friendId);
             log.info("друг {} добавлен в список друзей пользователя {}", friendId, userId);
-            friend.setFriends(friendFriendsList);
+
+            friendFriendsList.add(userId);
             log.info("пользователь {} добавлен в список друзей друга {}", userId, friendId);
 
         } else {
-            log.info("Друг с id {} уже в списке друзей", friend.getId());
+            throw new IncorrectDataException("Друг " + friendId + " уже в списке друзей пользователя" + userId);
         }
     }
 
@@ -51,23 +48,19 @@ public class UserService {
         validateUserId(userId);
         validateUserId(friendId);
 
-        User user = users.getUser(userId);
-        User friend = users.getUser(friendId);
-
-        Set<Long> userFriendsList = user.getFriends();
-        Set<Long> friendFriendsList = friend.getFriends();
+        Set<Long> userFriendsList = users.getUser(userId).getFriends();
+        Set<Long> friendFriendsList = users.getUser(friendId).getFriends();
 
         if (userFriendsList.contains(friendId)) {
-            userFriendsList.remove(friendId);
-            friendFriendsList.remove(userId);
 
-            user.setFriends(userFriendsList);
+            userFriendsList.remove(friendId);
             log.info("Успешно удалён друг {} из списка пользователя {}", friendId, userId);
-            friend.setFriends(friendFriendsList);
+
+            friendFriendsList.remove(userId);
             log.info("Успешно удалён пользователь {} из списка друга {}", userId, friendId);
 
         } else {
-            log.info("Друга {} нет в списке друзей пользователя {}", friendId, userId);
+            throw new IncorrectDataException("Друга " + friendId + " нет в списке друзей пользователя " + userId);
         }
     }
 
@@ -86,11 +79,8 @@ public class UserService {
         validateUserId(userId);
         validateUserId(otherId);
 
-        User user = users.getUser(userId);
-        User other = users.getUser(otherId);
-
-        Set<Long> userListFriends = user.getFriends();
-        Set<Long> otherListFriends = other.getFriends();
+        Set<Long> userListFriends = users.getUser(userId).getFriends();
+        Set<Long> otherListFriends = users.getUser(otherId).getFriends();
 
         return userListFriends.stream()
                 .filter(otherListFriends::contains)
@@ -100,8 +90,7 @@ public class UserService {
 
     public void validateUserId(Long id) {
         if(users.getUser(id) == null) {
-            log.info("пользователь {} не найден", id);
-            throw new IncorrectIdException("некорректный id пользователя");
+            throw new IncorrectIdException("некорректный id пользователя: " + id);
         }
     }
 }

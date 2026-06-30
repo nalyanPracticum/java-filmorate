@@ -24,30 +24,25 @@ public class UserController {
     public UserController(UserStorage userStorage, UserService service) {
         this.userStorage = userStorage;
         this.service = service;
-        log.info("UserController инициализирован");
     }
 
     @PostMapping
     public User create(@Valid @RequestBody final User user) {
-        log.info("Создание пользователя {}", user);
         return userStorage.create(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody final User user) {
-        log.info("Обновление пользователя {}", user);
         return userStorage.update(user);
     }
 
     @GetMapping
     public List<User> getUsers() {
-        log.info("Получение списка пользователей");
         return userStorage.getUsers();
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable long id, @PathVariable long friendId) {
-        log.info("Добавление друга {} пользователю {}", friendId, id);
         service.addFriend(id, friendId);
     }
 

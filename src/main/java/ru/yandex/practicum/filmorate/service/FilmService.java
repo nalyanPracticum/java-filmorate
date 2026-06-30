@@ -2,35 +2,39 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.IncorrectDataException;
 import ru.yandex.practicum.filmorate.exception.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
 
-    private final InMemoryFilmStorage films;
-    private final InMemoryUserStorage users;
+    private final FilmStorage films;
+    private final UserStorage users;
 
-    public FilmService(InMemoryFilmStorage films, InMemoryUserStorage users) {
+    private enum ValidationKey {USER, FILM}
+
+    public FilmService(FilmStorage films, UserStorage users) {
         this.films = films;
         this.users = users;
     }
 
     public void addLike(Long filmId, Long userId) {
-        validateId(filmId, "film");
-        validateId(userId, "user");
+        validateId(filmId, ValidationKey.FILM);
+        validateId(userId, ValidationKey.USER);
 
-        Film film = films.getFilm(filmId);
-        Set<Long> likes = film.getLikes();
+        Set<Long> likes = films.getFilm(filmId).getLikes();
 
         if (likes.contains(userId)) {
-            log.info("пользователь {} уже отметил фильм {}", userId, filmId);
-            return;
+            throw new IncorrectDataException("пользователь " + userId + " уже отметил фильм " + filmId);
         }
 
         likes.add(userId);
@@ -38,29 +42,31 @@ public class FilmService {
     }
 
     public void removeLike(Long filmId,Long userId) {
-        validateId(filmId, "film");
-        validateId(userId, "user");
+        validateId(filmId, ValidationKey.FILM);
+        validateId(userId, ValidationKey.USER);
 
-        Film film = films.getFilm(filmId);
-        Set<Long> likes = film.getLikes();
+        Set<Long> likes = films.getFilm(filmId).getLikes();
 
         if (!likes.contains(userId)) {
-            log.info("пользователем {} фильм {} не отмечался", userId, filmId);
-            return;
+            throw new IncorrectDataException("пользователем " + userId + " фильм " + filmId + " не отмечался");
         }
 
         likes.remove(userId);
         log.info("пользователь {} удалил лайк к фильму {}", userId, filmId);
     }
 
-    public void validateId(Long id, String key) {
-        if (key.equals("film") && films.getFilm(id) == null) {
-            log.info("фильм {} не найден", id);
-            throw new IncorrectIdException("некорректный id фильма");
-        } else if (key.equals("user") && users.getUser(id) == null) {
-            log.info("пользователь {} не найден", id);
-            throw new IncorrectIdException("некорректный id пользователя");
-        }
+    public List<Film> getPopular(int count) {
+        return films.getFilms().stream()
+                .sorted(Comparator.comparingInt((Film film) -> film.getLikes().size()).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
+    }
 
+    private void validateId(Long id, ValidationKey key) {
+        if (key.equals(ValidationKey.FILM) && films.getFilm(id) == null) {
+            throw new IncorrectIdException("некорректный id фильма: " + id);
+        } else if (key.equals(ValidationKey.USER) && users.getUser(id) == null) {
+            throw new IncorrectIdException("некорректный id пользователя: " + id);
+        }
     }
 }
