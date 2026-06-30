@@ -21,7 +21,7 @@ public class FilmController {
     private final FilmStorage filmStorage;
     private final FilmService filmService;
 
-    private final static int DEFAULT_COUNT_FILM = 10;
+    private static final int DEFAULT_COUNT_FILM = 10;
 
     @Autowired
     public FilmController(FilmStorage filmStorage, FilmService filmService) {
