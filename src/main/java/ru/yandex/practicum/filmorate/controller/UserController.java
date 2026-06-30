@@ -36,6 +36,12 @@ public class UserController {
         return userStorage.update(user);
     }
 
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id) {
+        log.info("получение информации о пользователе {}", id);
+        return userStorage.getUser(id);
+    }
+
     @GetMapping
     public List<User> getUsers() {
         return userStorage.getUsers();
