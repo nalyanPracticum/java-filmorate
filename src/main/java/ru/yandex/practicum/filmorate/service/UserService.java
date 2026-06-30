@@ -89,7 +89,7 @@ public class UserService {
     }
 
     public void validateUserId(Long id) {
-        if(users.getUser(id) == null) {
+        if (users.getUser(id) == null) {
             throw new IncorrectIdException("некорректный id пользователя: " + id);
         }
     }
