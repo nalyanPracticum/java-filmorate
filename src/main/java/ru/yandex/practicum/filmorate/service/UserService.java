@@ -1,12 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exception.IncorrectDataException;
-import ru.yandex.practicum.filmorate.exception.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -31,7 +27,9 @@ public class UserService {
         return users.update(user);
     }
 
-    public User getUser(Long id) { return users.getUser(id); }
+    public User getUser(Long id) {
+        return users.getUser(id);
+    }
 
     public List<User> getUsers() {
         return users.getUsers();
