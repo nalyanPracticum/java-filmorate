@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exception.IncorrectDataException;
 import ru.yandex.practicum.filmorate.exception.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -20,11 +23,22 @@ public class UserService {
         this.users = users;
     }
 
+    public User create(User user) {
+        return users.create(user);
+    }
+
+    public User update(User user) {
+        return users.update(user);
+    }
+
+    public User getUser(Long id) { return users.getUser(id); }
+
+    public List<User> getUsers() {
+        return users.getUsers();
+    }
+
     public void addFriend(Long userId, Long friendId) {
         log.info("Запущен сервис добавления в друзья пользователем {} друга {}", userId, friendId);
-
-        validateUserId(userId);
-        validateUserId(friendId);
 
         Set<Long> userFriendsList = users.getUser(userId).getFriends();
         Set<Long> friendFriendsList = users.getUser(friendId).getFriends();
@@ -45,9 +59,6 @@ public class UserService {
     public void removeFriend(Long userId, Long friendId) {
         log.info("Запущен сервис удаления из друзей пользователем {} друга {}", userId, friendId);
 
-        validateUserId(userId);
-        validateUserId(friendId);
-
         Set<Long> userFriendsList = users.getUser(userId).getFriends();
         Set<Long> friendFriendsList = users.getUser(friendId).getFriends();
 
@@ -67,7 +78,6 @@ public class UserService {
     public List<User> getFriends(Long userId) {
         log.info("Запущен сервис получения списка друзей пользователя {}", userId);
 
-        validateUserId(userId);
         Set<Long> friendsId = users.getUser(userId).getFriends();
         return friendsId.stream()
                 .map(users::getUser)
@@ -76,8 +86,6 @@ public class UserService {
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
         log.info("Запущен сервис получения списка общих друзей пользователя {} и {}", userId, otherId);
-        validateUserId(userId);
-        validateUserId(otherId);
 
         Set<Long> userListFriends = users.getUser(userId).getFriends();
         Set<Long> otherListFriends = users.getUser(otherId).getFriends();
@@ -86,11 +94,5 @@ public class UserService {
                 .filter(otherListFriends::contains)
                 .map(users::getUser)
                 .toList();
-    }
-
-    public void validateUserId(Long id) {
-        if (users.getUser(id) == null) {
-            throw new IncorrectIdException("некорректный id пользователя: " + id);
-        }
     }
 }

@@ -17,34 +17,29 @@ import java.util.List;
 @ComponentScan
 public class UserController {
 
-    private final UserStorage userStorage;
     private final UserService service;
 
     @Autowired
     public UserController(UserStorage userStorage, UserService service) {
-        this.userStorage = userStorage;
         this.service = service;
     }
 
     @PostMapping
     public User create(@Valid @RequestBody final User user) {
-        return userStorage.create(user);
+        return service.create(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody final User user) {
-        return userStorage.update(user);
+        return service.update(user);
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
-        log.info("получение информации о пользователе {}", id);
-        return userStorage.getUser(id);
-    }
+    public User getUser(@PathVariable Long id) { return service.getUser(id); }
 
     @GetMapping
     public List<User> getUsers() {
-        return userStorage.getUsers();
+        return service.getUsers();
     }
 
     @PutMapping("/{id}/friends/{friendId}")
